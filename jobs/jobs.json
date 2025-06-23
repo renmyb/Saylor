@@ -1,1 +1,23 @@
-[]
+[
+  {
+    "title": "Deckhand \u2013 45m Private Yacht",
+    "location": "Monaco",
+    "link": "https://www.yotspot.com/job-example-1",
+    "source": "Yotspot",
+    "timestamp": "2025-06-23T20:26:28.409446Z"
+  },
+  {
+    "title": "Stewardess \u2013 Charter Motor Yacht",
+    "location": "Antibes",
+    "link": "https://www.bluewateryachting.com/job-example-2",
+    "source": "Bluewater",
+    "timestamp": "2025-06-23T20:26:28.409479Z"
+  },
+  {
+    "title": "Engineer \u2013 Sailing Yacht",
+    "location": "Palma",
+    "link": "https://www.crewseekers.net/job-example-3",
+    "source": "CrewSeekers",
+    "timestamp": "2025-06-23T20:26:28.409498Z"
+  }
+]
