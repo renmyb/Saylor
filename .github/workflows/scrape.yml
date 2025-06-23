@@ -3,7 +3,7 @@ name: Update Yacht Jobs
 on:
   schedule:
     - cron: '0 * * * *'  # every hour
-  workflow_dispatch:      # manual run
+  workflow_dispatch:
 
 jobs:
   build:
@@ -11,6 +11,8 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Set up Python
         uses: actions/setup-python@v4
@@ -28,3 +30,5 @@ jobs:
           git add jobs/jobs.json || echo "Nothing to add"
           git diff --cached --quiet || git commit -m "Auto-update jobs feed"
           git push
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
