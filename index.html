@@ -1,26 +1,31 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
+  <meta charset="UTF-8">
   <title>Saylor4U – Yacht Crew Jobs</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="viewport" content="width=device-width, initial-scale=1">
   <style>
+    * {
+      box-sizing: border-box;
+    }
+
     body {
       margin: 0;
       padding: 0;
-      font-family: Arial, sans-serif;
+      font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
       background: url('FF9D9B95-E756-4B15-80FB-EAE8D39E530A.png') no-repeat center center fixed;
       background-size: cover;
-      color: white;
-      position: relative;
+      color: #fff;
     }
 
     body::before {
       content: "";
-      position: absolute;
-      top: 0; left: 0;
-      width: 100%; height: 100%;
-      background: rgba(0, 0, 0, 0.5);
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      background: rgba(0, 0, 0, 0.4);
       z-index: 0;
     }
 
@@ -31,20 +36,27 @@
 
     header {
       background-color: rgba(0, 45, 93, 0.95);
-      padding: 20px;
+      padding: 20px 0;
       text-align: center;
     }
 
     header h1 {
       margin: 0;
-      font-size: 2.2em;
+      font-size: 2.2rem;
+      font-weight: 700;
+      letter-spacing: 1px;
+    }
+
+    nav {
+      margin-top: 10px;
     }
 
     nav a {
-      color: white;
-      margin: 0 15px;
+      color: #fff;
       text-decoration: none;
-      font-weight: bold;
+      margin: 0 15px;
+      font-weight: 600;
+      font-size: 1rem;
     }
 
     nav a:hover {
@@ -54,30 +66,67 @@
     main {
       max-width: 900px;
       margin: 60px auto;
-      padding: 20px;
+      padding: 40px 20px;
       text-align: center;
     }
 
-    h2, p, ul, li {
-      text-shadow: 1px 1px 3px black;
+    h2 {
+      font-size: 1.8rem;
+      margin-bottom: 15px;
+      text-shadow: 1px 1px 4px black;
+    }
+
+    p {
+      font-size: 1.1rem;
+      max-width: 700px;
+      margin: 0 auto 30px;
+      text-shadow: 1px 1px 4px black;
     }
 
     ul {
       list-style: none;
       padding: 0;
+      margin: 0 auto;
+      max-width: 700px;
+      text-align: left;
     }
 
-    ul li::before {
-      content: "🛥️ ";
-      margin-right: 8px;
+    li {
+      margin: 15px 0;
+      font-size: 1.05rem;
+      padding-left: 25px;
+      position: relative;
+      text-shadow: 1px 1px 3px black;
+    }
+
+    li::before {
+      content: "🛟";
+      position: absolute;
+      left: 0;
+      top: 0;
     }
 
     footer {
-      background-color: rgba(0, 45, 93, 0.9);
-      color: white;
+      background-color: rgba(0, 45, 93, 0.95);
+      padding: 18px;
       text-align: center;
-      padding: 15px;
-      margin-top: 60px;
+      font-size: 0.9rem;
+      margin-top: 50px;
+    }
+
+    @media (max-width: 768px) {
+      nav a {
+        display: inline-block;
+        margin: 8px 10px;
+      }
+
+      main {
+        padding: 20px 15px;
+      }
+
+      h2 {
+        font-size: 1.6rem;
+      }
     }
   </style>
 </head>
@@ -107,3 +156,5 @@
   <footer>
     &copy; 2025 Saylor4U. Built for the yacht crew community.
   </footer>
+</body>
+</html>
