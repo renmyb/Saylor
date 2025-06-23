@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>CrewBot AI – Saylor4U</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <style>
+    body { font-family: Arial, sans-serif; padding: 20px; background: #f0f8ff; }
+    h1 { color: #002d5d; }
+    textarea, button {
+      width: 100%;
+      padding: 12px;
+      margin-top: 10px;
+      font-size: 16px;
+    }
+    .response {
+      background: #eef;
+      padding: 15px;
+      margin-top: 20px;
+      border-left: 4px solid #004a99;
+      border-radius: 4px;
+      white-space: pre-wrap;
+    }
+  </style>
+</head>
+<body>
+
+<h1>CrewBot (Demo)</h1>
+<p>Ask me about yachting jobs, training or starting your career!</p>
+
+<textarea id="question" placeholder="Example: What is STCW?"></textarea>
+<button onclick="crewbot()">Ask CrewBot</button>
+
+<div id="output" class="response"></div>
+
+<script>
+  function crewbot() {
+    const input = document.getElementById("question").value.toLowerCase();
+    const output = document.getElementById("output");
+
+    if (input.includes("stcw")) {
+      output.innerText = "STCW stands for Standards of Training, Certification and Watchkeeping. It’s a mandatory safety course required to work on most yachts.";
+    } else if (input.includes("eng1")) {
+      output.innerText = "The ENG1 is a medical certificate from an approved doctor. It confirms you're fit to work at sea.";
+    } else if (input.includes("deckhand")) {
+      output.innerText = "To become a deckhand, start with STCW + ENG1 + Powerboat Level 2. Then apply on job boards like Yotspot and CrewSeekers.";
+    } else {
+      output.innerText = "I'm CrewBot – here to help! Try asking about STCW, ENG1, or how to get your first yacht job.";
+    }
+  }
+</script>
+
+</body>
+</html>
