@@ -8,60 +8,86 @@
     * {
       box-sizing: border-box;
     }
+
     body {
-  font-family: Arial, sans-serif;
-  margin: 0;
-  padding: 0;
-  background: url('47231081-C641-4335-BE4F-020A46B69E2D.png') no-repeat center center fixed;
-  background-size: cover;
-  color: white;
-    }    
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 0;
+      background: url('47231081-C641-4335-BE4F-020A46B69E2D.jpeg') no-repeat center center fixed;
+      background-size: cover;
+      color: white;
+      min-height: 100vh;
+      position: relative;
+    }
+
+    /* Optional: dark overlay for readability */
+    body::before {
+      content: "";
+      background: rgba(0, 0, 0, 0.4);  /* adjust darkness here */
+      position: fixed;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      z-index: 0;
+    }
+
+    header, .section, footer {
+      position: relative;
+      z-index: 1;
+    }
+
     header {
-      background-color: #002d5d;
+      background-color: rgba(0, 45, 93, 0.9);
       color: white;
       padding: 20px 15px;
       text-align: center;
     }
+
     nav {
       margin-top: 10px;
     }
+
     nav a {
       color: white;
       text-decoration: none;
       margin: 0 12px;
       font-weight: bold;
     }
+
     nav a:hover {
       text-decoration: underline;
     }
+
     .section {
-      padding: 30px 20px;
-      max-width: 800px;
+      padding: 40px 20px;
+      max-width: 900px;
       margin: auto;
     }
-    h2 {
-      color: #002d5d;
+
+    h1, h2, p, li {
+      text-shadow: 1px 1px 4px rgba(0, 0, 0, 0.7);
     }
+
+    ul {
+      list-style: none;
+      padding: 0;
+    }
+
+    ul li::before {
+      content: "🛥️ ";
+      margin-right: 8px;
+    }
+
     footer {
       text-align: center;
       padding: 20px;
-      background-color: #002d5d;
+      background-color: rgba(0, 45, 93, 0.85);
       color: white;
-      margin-top: 40px;
+      margin-top: 60px;
     }
   </style>
 </head>
-
-  <style>
-  body::before {
-    content: "";
-    background: rgba(0,0,0,0.5); /* dark overlay */
-    position: fixed;
-    top: 0; left: 0;
-    width: 100%; height: 100%;
-    z-index: -1;
-  }
-</style>  <header>
+<body>
+  <header>
     <h1>Saylor4U</h1>
     <nav>
       <a href="index.html">Home</a>
@@ -80,10 +106,10 @@
       tools and resources tailored for you.
     </p>
     <ul>
-      <li>📋 Automatically updated yacht crew job listings</li>
-      <li>🧠 CrewBot – AI that answers yachting industry questions</li>
-      <li>📝 CV builder to create professional PDF resumes</li>
-      <li>🎓 Curated course guides from beginner to advanced</li>
+      <li>Automatically updated yacht crew job listings</li>
+      <li>CrewBot – AI that answers yachting industry questions</li>
+      <li>CV builder to create professional PDF resumes</li>
+      <li>Curated course guides from beginner to advanced</li>
     </ul>
   </div>
 
