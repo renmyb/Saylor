@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Yacht Jobs – Saylor4U</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <style>
+    body { font-family: Arial; padding: 20px; }
+    .job { border: 1px solid #ccc; padding: 15px; margin: 10px 0; }
+    h1 { color: #002d5d; }
+  </style>
+</head>
+<body>
+  <h1>Latest Yacht Jobs</h1>
+  <div id="job-list">Loading jobs...</div>
+
+  <script>
+    fetch('jobs/jobs.json')
+      .then(response => response.json())
+      .then(data => {
+        const container = document.getElementById('job-list');
+        container.innerHTML = '';
+        data.forEach(job => {
+          container.innerHTML += `
+            <div class="job">
+              <h3>${job.title}</h3>
+              <p><strong>Location:</strong> ${job.location}</p>
+              <p><a href="${job.link}" target="_blank">View job</a> | Source: ${job.source}</p>
+            </div>
+          `;
+        });
+      })
+      .catch(error => {
+        document.getElementById('job-list').innerText = 'Failed to load jobs.';
+      });
+  </script>
+</body>
+</html>
