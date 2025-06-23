@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>CV Builder – Saylor4U</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+  <style>
+    body { font-family: Arial, sans-serif; margin: 20px; }
+    h1 { color: #002d5d; }
+    input, textarea, button {
+      width: 100%; margin-top: 10px; padding: 10px;
+      font-size: 16px;
+    }
+    textarea { resize: vertical; height: 80px; }
+    #cv-output { margin-top: 30px; padding: 20px; background: #f9f9f9; border: 1px solid #ccc; }
+    #download-btn { background: #002d5d; color: white; border: none; cursor: pointer; margin-top: 20px; }
+  </style>
+</head>
+<body>
+
+<h1>Saylor4U – Yacht Crew CV Builder</h1>
+<p>Fill out the form to generate a professional CV and download it as a PDF.</p>
+
+<form id="cv-form">
+  <input name="name" placeholder="Full Name" required>
+  <input name="role" placeholder="Position (e.g. Deckhand, Stewardess)" required>
+  <textarea name="experience" placeholder="Work Experience (e.g. boats, duties)"></textarea>
+  <textarea name="certs" placeholder="Courses & Certifications (e.g. STCW, ENG1)"></textarea>
+  <textarea name="skills" placeholder="Skills (languages, navigation, tender driving)"></textarea>
+  <button type="submit">Generate CV</button>
+</form>
+
+<div id="cv-output" style="display:none;"></div>
+<button id="download-btn" style="display:none;">Download CV as PDF</button>
+
+<script>
+document.getElementById('cv-form').addEventListener('submit', function(e) {
+  e.preventDefault();
+
+  const name = this.name.value;
+  const role = this.role.value;
+  const exp = this.experience.value;
+  const certs = this.certs.value;
+  const skills = this.skills.value;
+
+  const cvText = `
+    <h2>${name}</h2>
+    <p><strong>Position:</strong> ${role}</p>
+    <h3>Experience</h3>
+    <p>${exp}</p>
+    <h3>Certifications</h3>
+    <p>${certs}</p>
+    <h3>Skills</h3>
+    <p>${skills}</p>
+  `;
+
+  const output = document.getElementById('cv-output');
+  output.innerHTML = cvText;
+  output.style.display = 'block';
+  document.getElementById('download-btn').style.display = 'inline-block';
+});
+
+document.getElementById('download-btn').addEventListener('click', () => {
+  const element = document.getElementById('cv-output');
+  html2pdf().from(element).save('Saylor4U_CV.pdf');
+});
+</script>
+
+</body>
+</html>
