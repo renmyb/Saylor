@@ -3,7 +3,17 @@ import json
 import feedparser
 
 def parse_rss(url, source):
+    print(f"Fetching from {source}: {url}")
     feed = feedparser.parse(url)
+    
+    if feed.bozo:
+        print(f"⚠️ Error parsing {source}: {feed.bozo_exception}")
+        return []
+    
+    if not hasattr(feed, "entries") or len(feed.entries) == 0:
+        print(f"❌ No entries found in {source}")
+        return []
+    
     jobs = []
     for entry in feed.entries:
         jobs.append({
@@ -17,12 +27,12 @@ def parse_rss(url, source):
 def main():
     rss_sources = [
         {
-            "url": "https://www.bluewateryachting.com/rss/jobfeed",
-            "source": "Bluewater"
-        },
-        {
             "url": "https://www.dockwalk.com/jobs.rss",
             "source": "Dockwalk"
+        },
+        {
+            "url": "https://www.bluewateryachting.com/rss/jobfeed",
+            "source": "Bluewater"
         }
     ]
 
