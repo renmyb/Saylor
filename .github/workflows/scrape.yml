@@ -2,13 +2,12 @@ name: Auto Scrape Yacht Jobs
 
 on:
   schedule:
-    - cron: '*/15 * * * *'  # every 15 minutes
+    - cron: '*/15 * * * *'
   workflow_dispatch:
 
 jobs:
   update-jobs:
     runs-on: ubuntu-latest
-
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -31,7 +30,7 @@ jobs:
           git config --global user.name "github-actions"
           git config --global user.email "github-actions@github.com"
           git add jobs/jobs.json
-          git diff --cached --quiet || git commit -m "🔄 Update job listings"
+          git diff --cached --quiet || git commit -m "🛠️ Update job listings"
           git push
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
