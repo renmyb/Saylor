@@ -8,6 +8,7 @@ on:
 jobs:
   update-jobs:
     runs-on: ubuntu-latest
+
     steps:
       - name: Checkout repo
         uses: actions/checkout@v3
@@ -19,7 +20,8 @@ jobs:
 
       - name: Install dependencies
         run: |
-          pip install requests beautifulsoup4
+          pip install playwright
+          playwright install
 
       - name: Run scraper
         run: python scraper/scrape_jobs.py
