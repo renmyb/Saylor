@@ -1,37 +1,28 @@
 import json
-import requests
-from bs4 import BeautifulSoup
+import feedparser
 from datetime import datetime
 
-def scrape_test_jobs():
+def parse_yotspot_rss():
     jobs = []
+    feed_url = "https://www.yotspot.com/feed/jobs.rss"
+    feed = feedparser.parse(feed_url)
 
-    # Sample public source - replace with real later
-    url = "https://remoteok.com/remote-dev-jobs"  # TEMP public source for example only
+    for entry in feed.entries[:30]:  # Limit to 30 jobs
+        job = {
+            "title": entry.title,
+            "location": "Various",
+            "link": entry.link,
+            "timestamp": datetime.utcnow().isoformat()
+        }
+        jobs.append(job)
 
-    try:
-        r = requests.get(url, headers={"User-Agent": "Mozilla/5.0"})
-        soup = BeautifulSoup(r.content, "html.parser")
-        listings = soup.select("tr.job")[:10]
+    return jobs
 
-        for row in listings:
-            title = row.get("data-position")
-            company = row.get("data-company")
-            link = "https://remoteok.com" + row.get("data-href")
-
-            if title and company:
-                jobs.append({
-                    "title": f"{title} – {company}",
-                    "location": "Worldwide",
-                    "link": link,
-                    "timestamp": datetime.utcnow().isoformat()
-                })
-
-    except Exception as e:
-        print("Error scraping:", e)
-
+def save_jobs(jobs):
     with open("jobs/jobs.json", "w") as f:
         json.dump(jobs, f, indent=2)
 
 if __name__ == "__main__":
-    scrape_test_jobs()
+    all_jobs = []
+    all_jobs += parse_yotspot_rss()
+    save_jobs(all_jobs)
