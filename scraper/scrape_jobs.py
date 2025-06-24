@@ -17,11 +17,11 @@ def parse_rss(url, source):
 def main():
     rss_sources = [
         {
-            "url": "https://www.bluewateryachting.com/rss/jobs",  # replace if needed
+            "url": "https://www.bluewateryachting.com/rss/jobfeed",
             "source": "Bluewater"
         },
         {
-            "url": "https://www.dockwalk.com/jobs.rss",  # replace if needed
+            "url": "https://www.dockwalk.com/jobs.rss",
             "source": "Dockwalk"
         }
     ]
