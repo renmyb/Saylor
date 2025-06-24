@@ -1,34 +1,35 @@
-
-name: Update Yacht Jobs
+name: Auto-update Jobs
 
 on:
   schedule:
-    - cron: "0 * * * *"  # Every hour
+    - cron: '0 * * * *'  # Every hour
   workflow_dispatch:
 
 jobs:
-  build:
+  update-jobs:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout
+      - name: Checkout repo
         uses: actions/checkout@v3
 
       - name: Set up Python
         uses: actions/setup-python@v4
         with:
-          python-version: "3.x"
+          python-version: '3.x'
+
+      - name: Install dependencies
+        run: |
+          pip install requests beautifulsoup4
 
       - name: Run scraper
-        run: |
-          pip install beautifulsoup4 requests
-          python scraper/scrape_jobs.py
+        run: python scraper/scrape_jobs.py
 
-      - name: Commit and push changes
+      - name: Commit and push
         run: |
           git config user.name "github-actions"
           git config user.email "github-actions@github.com"
-          git add jobs/jobs.json || echo "Nothing to add"
-          git diff --cached --quiet || git commit -m "Auto-update yacht jobs"
+          git add jobs/jobs.json
+          git diff --cached --quiet || git commit -m "Auto update jobs"
           git push
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
