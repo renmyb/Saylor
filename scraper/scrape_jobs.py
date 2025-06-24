@@ -1,68 +1,59 @@
-import os
+import requests
+from bs4 import BeautifulSoup
 import json
-from playwright.sync_api import sync_playwright
+import os
 
-def scrape_bluewater(page):
-    page.goto("https://www.bluewateryachting.com/yacht-crew-job-list")
-    page.wait_for_selector(".job-listing")
+def scrape_allcruisejobs():
+    url = "https://www.allcruisejobs.com/yacht/"
+    headers = {"User-Agent": "Mozilla/5.0"}
+    res = requests.get(url, headers=headers)
+    soup = BeautifulSoup(res.text, 'html.parser')
     jobs = []
-    listings = page.query_selector_all(".job-listing")
 
-    for job in listings:
-        try:
-            title = job.query_selector(".job-title").inner_text().strip()
-            location = job.query_selector(".job-location").inner_text().strip()
-            link = job.query_selector("a").get_attribute("href")
+    for box in soup.select('.box'):
+        title_el = box.select_one('h2')
+        link_el = box.select_one('a[href]')
+        if title_el and link_el:
             jobs.append({
-                "title": title,
-                "location": location,
-                "link": f"https://www.bluewateryachting.com{link}",
-                "source": "Bluewater"
+                "title": title_el.text.strip(),
+                "link": "https://www.allcruisejobs.com" + link_el['href'],
+                "location": "N/A",
+                "source": "AllCruiseJobs"
             })
-        except:
-            continue
     return jobs
 
-def scrape_dockwalk(page):
-    page.goto("https://www.dockwalk.com/jobs")
-    page.wait_for_selector(".job-title")
+def scrape_yacrew():
+    url = "https://www.yacrew.com/find-a-job/"
+    headers = {"User-Agent": "Mozilla/5.0"}
+    res = requests.get(url, headers=headers)
+    soup = BeautifulSoup(res.text, 'html.parser')
     jobs = []
-    listings = page.query_selector_all(".job-list-card")
 
-    for job in listings:
-        try:
-            title = job.query_selector(".job-title").inner_text().strip()
-            location = job.query_selector(".location").inner_text().strip()
-            link = job.query_selector("a").get_attribute("href")
+    for job_item in soup.select('.job_item'):
+        title_el = job_item.select_one('h2')
+        link_el = job_item.select_one('a[href]')
+        if title_el and link_el:
             jobs.append({
-                "title": title,
-                "location": location,
-                "link": f"https://www.dockwalk.com{link}",
-                "source": "Dockwalk"
+                "title": title_el.text.strip(),
+                "link": "https://www.yacrew.com" + link_el['href'],
+                "location": "N/A",
+                "source": "YaCrew"
             })
-        except:
-            continue
     return jobs
 
 def main():
     all_jobs = []
-    with sync_playwright() as p:
-        browser = p.chromium.launch(headless=True)
-        page = browser.new_page()
+    try:
+        print("📦 Scraping AllCruiseJobs...")
+        all_jobs += scrape_allcruisejobs()
+    except Exception as e:
+        print(f"Failed to fetch AllCruiseJobs: {e}")
 
-        try:
-            print("🔵 Bluewater...")
-            all_jobs += scrape_bluewater(page)
-        except Exception as e:
-            print(f"❌ Bluewater failed: {e}")
-
-        try:
-            print("🟢 Dockwalk...")
-            all_jobs += scrape_dockwalk(page)
-        except Exception as e:
-            print(f"❌ Dockwalk failed: {e}")
-
-        browser.close()
+    try:
+        print("📦 Scraping YaCrew...")
+        all_jobs += scrape_yacrew()
+    except Exception as e:
+        print(f"Failed to fetch YaCrew: {e}")
 
     os.makedirs("jobs", exist_ok=True)
     with open("jobs/jobs.json", "w") as f:
