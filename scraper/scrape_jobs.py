@@ -1,72 +1,44 @@
-import requests
-from bs4 import BeautifulSoup
+import asyncio
 import json
 import os
 from datetime import datetime
+from playwright.async_api import async_playwright
 
-HEADERS = {
-    "User-Agent": "Mozilla/5.0"
-}
-
-def scrape_bluewater():
-    url = "https://www.bluewateryachting.com/yacht-crew-job-list"
-    response = requests.get(url, headers=HEADERS)
-    soup = BeautifulSoup(response.text, "html.parser")
+async def scrape_bluewater(page):
+    await page.goto("https://www.bluewateryachting.com/yacht-crew-job-list", timeout=60000)
+    await page.wait_for_selector("div.job-title a", timeout=15000)
+    links = await page.query_selector_all("div.job-title a")
 
     jobs = []
-    listings = soup.select("div.job-listing div.job-title a")
-
-    for a in listings[:25]:  # first 25 jobs
-        title = a.get_text(strip=True)
-        link = "https://www.bluewateryachting.com" + a.get("href", "#")
+    for link in links[:25]:  # First 25
+        title = await link.inner_text()
+        href = await link.get_attribute("href")
         jobs.append({
-            "title": f"{title} (Bluewater)",
+            "title": f"{title.strip()} (Bluewater)",
             "location": "N/A",
-            "link": link,
+            "link": "https://www.bluewateryachting.com" + href,
             "timestamp": datetime.utcnow().isoformat()
         })
-
     return jobs
 
-def scrape_dockwalk():
-    url = "https://www.dockwalk.com/jobs"
-    response = requests.get(url, headers=HEADERS)
-    soup = BeautifulSoup(response.text, "html.parser")
-
-    jobs = []
-    cards = soup.select("a[href^='/jobs/']")
-
-    seen = set()
-    for a in cards[:20]:  # First 20
-        href = a.get("href")
-        title = a.get_text(strip=True)
-
-        if href and title and href not in seen:
-            seen.add(href)
-            jobs.append({
-                "title": f"{title} (Dockwalk)",
-                "location": "N/A",
-                "link": "https://www.dockwalk.com" + href,
-                "timestamp": datetime.utcnow().isoformat()
-            })
-
-    return jobs
-
-if __name__ == "__main__":
+async def scrape():
     all_jobs = []
+    async with async_playwright() as p:
+        browser = await p.chromium.launch()
+        page = await browser.new_page()
 
-    try:
-        all_jobs.extend(scrape_bluewater())
-    except Exception as e:
-        print("Bluewater failed:", e)
+        try:
+            bluewater_jobs = await scrape_bluewater(page)
+            all_jobs.extend(bluewater_jobs)
+        except Exception as e:
+            print("Error scraping Bluewater:", e)
 
-    try:
-        all_jobs.extend(scrape_dockwalk())
-    except Exception as e:
-        print("Dockwalk failed:", e)
+        await browser.close()
 
     os.makedirs("jobs", exist_ok=True)
     with open("jobs/jobs.json", "w") as f:
         json.dump(all_jobs, f, indent=2)
+    print(f"✅ Scraped and saved {len(all_jobs)} jobs")
 
-    print(f"✅ Fetched {len(all_jobs)} jobs and saved to jobs/jobs.json")
+if __name__ == "__main__":
+    asyncio.run(scrape())
