@@ -1,37 +1,62 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <title>Yacht Jobs – Saylor4U</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Jobs - Saylor4U</title>
   <style>
-    body { font-family: Arial; padding: 20px; }
-    .job { border: 1px solid #ccc; padding: 15px; margin: 10px 0; }
-    h1 { color: #002d5d; }
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f8f9fa;
+      margin: 0;
+      padding: 20px;
+    }
+    .job-card {
+      background: white;
+      border-radius: 6px;
+      padding: 15px;
+      margin: 10px 0;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+    .job-title {
+      font-weight: bold;
+      font-size: 1.1em;
+    }
+    .job-location {
+      font-style: italic;
+      color: gray;
+    }
   </style>
 </head>
 <body>
-  <h1>Latest Yacht Jobs</h1>
-  <div id="job-list">Loading jobs...</div>
+  <h2>Latest Yacht Jobs</h2>
+  <div id="job-list">Loading...</div>
 
   <script>
-    fetch('jobs/jobs.json')
-      .then(response => response.json())
+    fetch("jobs/jobs.json")
+      .then(res => res.json())
       .then(data => {
-        const container = document.getElementById('job-list');
-        container.innerHTML = '';
+        const container = document.getElementById("job-list");
+        if (data.length === 0) {
+          container.innerHTML = "No jobs found.";
+          return;
+        }
+        container.innerHTML = "";
         data.forEach(job => {
-          container.innerHTML += `
-            <div class="job">
-              <h3>${job.title}</h3>
-              <p><strong>Location:</strong> ${job.location}</p>
-              <p><a href="${job.link}" target="_blank">View job</a> | Source: ${job.source}</p>
-            </div>
+          const div = document.createElement("div");
+          div.className = "job-card";
+          div.innerHTML = `
+            <div class="job-title">${job.title}</div>
+            <div class="job-location">${job.location}</div>
+            <a href="${job.link}" target="_blank">View Job</a>
           `;
+          container.appendChild(div);
         });
       })
-      .catch(error => {
-        document.getElementById('job-list').innerText = 'Failed to load jobs.';
+      .catch(err => {
+        document.getElementById("job-list").innerText = "Failed to load jobs.";
+        console.error("Error loading jobs:", err);
       });
   </script>
 </body>
