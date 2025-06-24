@@ -28,7 +28,7 @@ jobs:
         run: python scraper/scrape_jobs.py
 
       - name: Upload Screenshot (Debug)
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: bluewater-screenshot
           path: debug/bluewater_page.png
