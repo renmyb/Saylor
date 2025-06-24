@@ -2,35 +2,34 @@ name: Auto Scrape Yacht Jobs
 
 on:
   schedule:
-    - cron: '*/15 * * * *'
+    - cron: '*/15 * * * *'  # Every 15 minutes
   workflow_dispatch:
 
 jobs:
-  update-jobs:
+  scrape:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
+      - name: Checkout repository
+        uses: actions/checkout@v3
 
       - name: Set up Python
         uses: actions/setup-python@v4
         with:
-          python-version: '3.x'
+          python-version: 3.11
 
-      - name: Install Playwright
+      - name: Install dependencies
         run: |
-          pip install playwright
-          playwright install chromium
+          pip install beautifulsoup4 requests
 
       - name: Run scraper
         run: python scraper/scrape_jobs.py
 
-      - name: Commit changes
+      - name: Commit and push updated jobs.json
         run: |
-          git config --global user.name "github-actions"
-          git config --global user.email "github-actions@github.com"
+          git config --global user.name 'Saylor Bot'
+          git config --global user.email 'saylorbot@example.com'
           git add jobs/jobs.json
-          git diff --cached --quiet || git commit -m "🛠️ Update job listings"
+          git commit -m "🤖 Auto-update job listings"
           git push
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
