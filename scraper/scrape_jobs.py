@@ -8,7 +8,7 @@ async def scrape_bluewater(page):
     await page.goto("https://www.bluewateryachting.com/yacht-crew-job-list", timeout=60000)
 
     try:
-        await page.wait_for_selector("div.jobs-listing", timeout=15000)
+        await page.wait_for_selector("div.jobs-listing", timeout=30000)  # extended wait
         jobs = await page.query_selector_all("div.jobs-listing > div.job")
 
         job_data = []
@@ -18,7 +18,6 @@ async def scrape_bluewater(page):
                 title = await job.query_selector_eval("h3", "el => el.textContent.trim()")
                 location = await job.query_selector_eval("p", "el => el.textContent.trim()")
                 link = await job.query_selector_eval("a", "el => el.href")
-
                 job_data.append({
                     "title": title,
                     "location": location,
@@ -34,7 +33,7 @@ async def scrape_bluewater(page):
     except Exception as e:
         print(f"❌ Bluewater scrape failed: {e}")
         os.makedirs("debug", exist_ok=True)
-        await page.screenshot(path="debug/bluewater_loaded.png")
+        await page.screenshot(path="debug/bluewater_page.png", full_page=True)
         return []
 
 async def scrape():
