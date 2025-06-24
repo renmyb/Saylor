@@ -1,37 +1,38 @@
+import asyncio
 import os
 import json
 from playwright.async_api import async_playwright
 
 async def scrape_bluewater(page):
     print("🔍 Visiting Bluewater...")
-    await page.goto("https://www.bluewateryachting.com/yacht-crew-job-list", timeout=30000)
-    await page.wait_for_load_state("networkidle")  # 👈 new: wait for full network load
+    await page.goto("https://www.bluewateryachting.com/yacht-crew-job-list")
+    
+    # Wait up to 10 seconds for jobs to appear
+    await page.wait_for_selector("ul.job-listings > li", timeout=10000)
 
-    # Save screenshot even if no jobs found
-    os.makedirs("debug", exist_ok=True)
-    await page.screenshot(path="debug/bluewater_loaded.png", full_page=True)
+    jobs = await page.query_selector_all("ul.job-listings > li")
+    job_data = []
 
-    job_elements = await page.query_selector_all("div.job-title")
+    for job in jobs:
+        try:
+            title = await job.query_selector_eval("h3", "el => el.textContent")
+            location = await job.query_selector_eval("span.location", "el => el.textContent")
+            link = await job.query_selector_eval("a", "el => el.href")
 
-    jobs = []
-    for job in job_elements:
-        title = await job.inner_text()
-        link_tag = await job.query_selector("a")
-        link = await link_tag.get_attribute("href") if link_tag else None
-
-        if title and link:
-            jobs.append({
+            job_data.append({
                 "title": title.strip(),
-                "location": "Bluewater",
-                "link": f"https://www.bluewateryachting.com{link.strip()}"
+                "location": location.strip(),
+                "link": link.strip()
             })
+        except Exception as e:
+            print(f"⚠️ Skipped one job due to error: {e}")
+            continue
 
-    print(f"✅ Found {len(jobs)} jobs on Bluewater")
-    return jobs
+    print(f"✅ Found {len(job_data)} jobs on Bluewater")
+    return job_data
 
 async def scrape():
     all_jobs = []
-
     async with async_playwright() as p:
         browser = await p.chromium.launch(headless=True)
         page = await browser.new_page()
@@ -51,5 +52,4 @@ async def scrape():
     print(f"📦 Saved {len(all_jobs)} jobs to jobs/jobs.json")
 
 if __name__ == "__main__":
-    import asyncio
     asyncio.run(scrape())
