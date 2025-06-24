@@ -1,9 +1,9 @@
 name: Auto-update Jobs
 
 on:
-  workflow_dispatch:
   schedule:
-    - cron: "0 * * * *"  # Every hour
+    - cron: '0 * * * *'
+  workflow_dispatch:
 
 jobs:
   update-jobs:
@@ -11,34 +11,25 @@ jobs:
 
     steps:
       - name: Checkout repo
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Set up Python
         uses: actions/setup-python@v4
         with:
-          python-version: "3.11"
+          python-version: '3.x'
 
-      - name: Install dependencies
-        run: |
-          pip install requests beautifulsoup4
-          pip install playwright
-          playwright install chromium
+      - name: Install feedparser
+        run: pip install feedparser
 
       - name: Run scraper
         run: python scraper/scrape_jobs.py
 
-      - name: Upload Screenshot (Debug)
-        uses: actions/upload-artifact@v4
-        with:
-          name: bluewater-screenshot
-          path: debug/bluewater_page.png
-
-      - name: Commit and push changes
+      - name: Commit and push
         run: |
           git config user.name "github-actions"
           git config user.email "github-actions@github.com"
           git add jobs/jobs.json || echo "Nothing to add"
-          git diff --cached --quiet || git commit -m "Auto-update jobs feed"
+          git diff --cached --quiet || git commit -m "Update job feed"
           git push
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
