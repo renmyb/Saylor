@@ -5,31 +5,37 @@ from playwright.async_api import async_playwright
 
 async def scrape_bluewater(page):
     print("🔍 Visiting Bluewater...")
-    await page.goto("https://www.bluewateryachting.com/yacht-crew-job-list")
-    
-    # Wait up to 10 seconds for jobs to appear
-    await page.wait_for_selector("ul.job-listings > li", timeout=10000)
+    await page.goto("https://www.bluewateryachting.com/yacht-crew-job-list", timeout=60000)
 
-    jobs = await page.query_selector_all("ul.job-listings > li")
-    job_data = []
+    try:
+        await page.wait_for_selector("div.jobs-listing", timeout=15000)
+        jobs = await page.query_selector_all("div.jobs-listing > div.job")
 
-    for job in jobs:
-        try:
-            title = await job.query_selector_eval("h3", "el => el.textContent")
-            location = await job.query_selector_eval("span.location", "el => el.textContent")
-            link = await job.query_selector_eval("a", "el => el.href")
+        job_data = []
 
-            job_data.append({
-                "title": title.strip(),
-                "location": location.strip(),
-                "link": link.strip()
-            })
-        except Exception as e:
-            print(f"⚠️ Skipped one job due to error: {e}")
-            continue
+        for job in jobs:
+            try:
+                title = await job.query_selector_eval("h3", "el => el.textContent.trim()")
+                location = await job.query_selector_eval("p", "el => el.textContent.trim()")
+                link = await job.query_selector_eval("a", "el => el.href")
 
-    print(f"✅ Found {len(job_data)} jobs on Bluewater")
-    return job_data
+                job_data.append({
+                    "title": title,
+                    "location": location,
+                    "link": link
+                })
+            except Exception as e:
+                print(f"⚠️ Skipped job: {e}")
+                continue
+
+        print(f"✅ Found {len(job_data)} jobs on Bluewater")
+        return job_data
+
+    except Exception as e:
+        print(f"❌ Bluewater scrape failed: {e}")
+        os.makedirs("debug", exist_ok=True)
+        await page.screenshot(path="debug/bluewater_loaded.png")
+        return []
 
 async def scrape():
     all_jobs = []
@@ -37,11 +43,8 @@ async def scrape():
         browser = await p.chromium.launch(headless=True)
         page = await browser.new_page()
 
-        try:
-            bluewater_jobs = await scrape_bluewater(page)
-            all_jobs.extend(bluewater_jobs)
-        except Exception as e:
-            print(f"❌ Error scraping Bluewater: {e}")
+        bluewater_jobs = await scrape_bluewater(page)
+        all_jobs.extend(bluewater_jobs)
 
         await browser.close()
 
