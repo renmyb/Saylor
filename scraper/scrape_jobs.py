@@ -4,10 +4,10 @@ from playwright.async_api import async_playwright
 
 async def scrape_bluewater(page):
     print("🔍 Visiting Bluewater...")
-    await page.goto("https://www.bluewateryachting.com/yacht-crew-job-list")
-    await page.wait_for_selector("div.job-title", timeout=15000)  # 15 seconds timeout
+    await page.goto("https://www.bluewateryachting.com/yacht-crew-job-list", timeout=30000)
+    await page.wait_for_load_state("networkidle")  # 👈 new: wait for full network load
 
-    # 📸 Save screenshot after page loads
+    # Save screenshot even if no jobs found
     os.makedirs("debug", exist_ok=True)
     await page.screenshot(path="debug/bluewater_loaded.png", full_page=True)
 
@@ -47,7 +47,7 @@ async def scrape():
     os.makedirs("jobs", exist_ok=True)
     with open("jobs/jobs.json", "w") as f:
         json.dump(all_jobs, f, indent=2)
-    
+
     print(f"📦 Saved {len(all_jobs)} jobs to jobs/jobs.json")
 
 if __name__ == "__main__":
