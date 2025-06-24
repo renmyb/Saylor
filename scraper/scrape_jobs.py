@@ -1,91 +1,47 @@
-import json
 import os
+import json
 from playwright.sync_api import sync_playwright
 
-def fetch_bluewater(page):
-    print("🔵 Bluewater")
+def scrape_bluewater(page):
+    page.goto("https://www.bluewateryachting.com/yacht-crew-job-list")
+    page.wait_for_selector(".job-listing")
     jobs = []
-    page.goto("https://www.bluewateryachting.com/yacht-crew-job-listings", timeout=60000)
-    page.wait_for_selector(".job-listing", timeout=30000)
-    cards = page.query_selector_all(".job-listing")
-    for card in cards:
-        title = card.query_selector("h4").inner_text()
-        link = card.query_selector("a").get_attribute("href")
-        location = card.query_selector(".location").inner_text() if card.query_selector(".location") else "N/A"
-        jobs.append({
-            "title": title,
-            "link": "https://www.bluewateryachting.com" + link,
-            "location": location,
-            "source": "Bluewater"
-        })
+    listings = page.query_selector_all(".job-listing")
+
+    for job in listings:
+        try:
+            title = job.query_selector(".job-title").inner_text().strip()
+            location = job.query_selector(".job-location").inner_text().strip()
+            link = job.query_selector("a").get_attribute("href")
+            jobs.append({
+                "title": title,
+                "location": location,
+                "link": f"https://www.bluewateryachting.com{link}",
+                "source": "Bluewater"
+            })
+        except:
+            continue
     return jobs
 
-def fetch_crewseekers(page):
-    print("🟠 CrewSeekers")
+def scrape_dockwalk(page):
+    page.goto("https://www.dockwalk.com/jobs")
+    page.wait_for_selector(".job-title")
     jobs = []
-    page.goto("https://www.crewseekers.net/crew-positions/", timeout=60000)
-    page.wait_for_selector(".views-row", timeout=30000)
-    cards = page.query_selector_all(".views-row")
-    for card in cards:
-        title = card.query_selector("h3").inner_text()
-        link = card.query_selector("a").get_attribute("href")
-        jobs.append({
-            "title": title,
-            "link": "https://www.crewseekers.net" + link,
-            "location": "N/A",
-            "source": "CrewSeekers"
-        })
-    return jobs
+    listings = page.query_selector_all(".job-list-card")
 
-def fetch_yacrew(page):
-    print("🟢 YaCrew")
-    jobs = []
-    page.goto("https://www.yacrew.com/find-a-job/", timeout=60000)
-    page.wait_for_selector(".job_item", timeout=30000)
-    cards = page.query_selector_all(".job_item")
-    for card in cards:
-        title = card.query_selector("h2").inner_text()
-        link = card.query_selector("a").get_attribute("href")
-        jobs.append({
-            "title": title,
-            "link": "https://www.yacrew.com" + link,
-            "location": "N/A",
-            "source": "YaCrew"
-        })
-    return jobs
-
-def fetch_luxuryyachtgroup(page):
-    print("🟤 Luxury Yacht Group")
-    jobs = []
-    page.goto("https://www.luxyachts.com/jobs", timeout=60000)
-    page.wait_for_selector(".job-listing", timeout=30000)
-    cards = page.query_selector_all(".job-listing")
-    for card in cards:
-        title = card.query_selector("h4").inner_text()
-        link = card.query_selector("a").get_attribute("href")
-        jobs.append({
-            "title": title,
-            "link": "https://www.luxyachts.com" + link,
-            "location": "N/A",
-            "source": "LuxuryYachtGroup"
-        })
-    return jobs
-
-def fetch_allcruisejobs(page):
-    print("🔷 All Cruise Jobs")
-    jobs = []
-    page.goto("https://www.allcruisejobs.com/yacht/", timeout=60000)
-    page.wait_for_selector(".box", timeout=30000)
-    cards = page.query_selector_all(".box")
-    for card in cards:
-        title = card.query_selector("h2").inner_text()
-        link = card.query_selector("a").get_attribute("href")
-        jobs.append({
-            "title": title,
-            "link": "https://www.allcruisejobs.com" + link,
-            "location": "N/A",
-            "source": "AllCruiseJobs"
-        })
+    for job in listings:
+        try:
+            title = job.query_selector(".job-title").inner_text().strip()
+            location = job.query_selector(".location").inner_text().strip()
+            link = job.query_selector("a").get_attribute("href")
+            jobs.append({
+                "title": title,
+                "location": location,
+                "link": f"https://www.dockwalk.com{link}",
+                "source": "Dockwalk"
+            })
+        except:
+            continue
     return jobs
 
 def main():
@@ -94,28 +50,25 @@ def main():
         browser = p.chromium.launch(headless=True)
         page = browser.new_page()
 
-        all_jobs += fetch_bluewater(page)
-        all_jobs += fetch_crewseekers(page)
-        all_jobs += fetch_yacrew(page)
-        all_jobs += fetch_luxuryyachtgroup(page)
-        all_jobs += fetch_allcruisejobs(page)
+        try:
+            print("🔵 Bluewater...")
+            all_jobs += scrape_bluewater(page)
+        except Exception as e:
+            print(f"❌ Bluewater failed: {e}")
+
+        try:
+            print("🟢 Dockwalk...")
+            all_jobs += scrape_dockwalk(page)
+        except Exception as e:
+            print(f"❌ Dockwalk failed: {e}")
 
         browser.close()
 
-    # Deduplicate
-    seen = set()
-    unique_jobs = []
-    for job in all_jobs:
-        key = (job["title"], job["link"])
-        if key not in seen:
-            seen.add(key)
-            unique_jobs.append(job)
-
     os.makedirs("jobs", exist_ok=True)
     with open("jobs/jobs.json", "w") as f:
-        json.dump(unique_jobs, f, indent=2)
+        json.dump(all_jobs, f, indent=2)
 
-    print(f"✅ Saved {len(unique_jobs)} jobs to jobs/jobs.json")
+    print(f"✅ Saved {len(all_jobs)} jobs to jobs/jobs.json")
 
 if __name__ == "__main__":
     main()
