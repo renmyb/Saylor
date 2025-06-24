@@ -7,20 +7,20 @@ from playwright.async_api import async_playwright
 async def scrape_bluewater(page):
     print("🔵 Visiting Bluewater...")
     await page.goto("https://www.bluewateryachting.com/yacht-crew-job-list", timeout=60000)
-    
-    # Save screenshot BEFORE waiting
+
+    # Save screenshot of the loaded page
     os.makedirs("debug", exist_ok=True)
     await page.screenshot(path="debug/bluewater_page.png", full_page=True)
     print("📸 Screenshot saved to debug/bluewater_page.png")
-    
-    # Try to wait for job elements
+
+    # Wait for job listings to load
     await page.wait_for_selector("div.job-title a", timeout=20000)
 
-    jobs = []
     job_elements = await page.query_selector_all("div.job-title a")
     print(f"🧠 Found {len(job_elements)} job elements")
 
-    for el in job_elements[:25]:
+    jobs = []
+    for el in job_elements[:25]:  # Adjust number if needed
         title = await el.inner_text()
         href = await el.get_attribute("href")
         if title and href:
