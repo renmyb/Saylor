@@ -3,63 +3,51 @@ from bs4 import BeautifulSoup
 import json
 import os
 
-def scrape_allcruisejobs():
-    url = "https://www.allcruisejobs.com/yacht/"
-    headers = {"User-Agent": "Mozilla/5.0"}
-    res = requests.get(url, headers=headers)
-    soup = BeautifulSoup(res.text, 'html.parser')
+def scrape_jobs():
     jobs = []
 
-    for box in soup.select('.box'):
-        title_el = box.select_one('h2')
-        link_el = box.select_one('a[href]')
-        if title_el and link_el:
-            jobs.append({
-                "title": title_el.text.strip(),
-                "link": "https://www.allcruisejobs.com" + link_el['href'],
-                "location": "N/A",
-                "source": "AllCruiseJobs"
-            })
-    return jobs
+    urls = [
+        "https://www.bluewateryachting.com/yacht-crew-job-list",
+        "https://www.dockwalk.com/jobs"
+    ]
 
-def scrape_yacrew():
-    url = "https://www.yacrew.com/find-a-job/"
-    headers = {"User-Agent": "Mozilla/5.0"}
-    res = requests.get(url, headers=headers)
-    soup = BeautifulSoup(res.text, 'html.parser')
-    jobs = []
+    for url in urls:
+        try:
+            response = requests.get(url, timeout=10)
+            soup = BeautifulSoup(response.text, "html.parser")
 
-    for job_item in soup.select('.job_item'):
-        title_el = job_item.select_one('h2')
-        link_el = job_item.select_one('a[href]')
-        if title_el and link_el:
-            jobs.append({
-                "title": title_el.text.strip(),
-                "link": "https://www.yacrew.com" + link_el['href'],
-                "location": "N/A",
-                "source": "YaCrew"
-            })
-    return jobs
+            if "bluewater" in url:
+                for job in soup.select(".job-card"):
+                    title = job.select_one(".job-title")
+                    location = job.select_one(".job-location")
+                    link = job.select_one("a")
 
-def main():
-    all_jobs = []
-    try:
-        print("📦 Scraping AllCruiseJobs...")
-        all_jobs += scrape_allcruisejobs()
-    except Exception as e:
-        print(f"Failed to fetch AllCruiseJobs: {e}")
+                    if title and link:
+                        jobs.append({
+                            "title": title.text.strip(),
+                            "location": location.text.strip() if location else "N/A",
+                            "link": link["href"]
+                        })
 
-    try:
-        print("📦 Scraping YaCrew...")
-        all_jobs += scrape_yacrew()
-    except Exception as e:
-        print(f"Failed to fetch YaCrew: {e}")
+            if "dockwalk" in url:
+                for job in soup.select(".JobCardstyles__JobCardWrapper-sc-1bsod2n-0"):
+                    title = job.select_one("h2")
+                    location = job.select_one("p")
+                    link = job.find("a")
+
+                    if title and link:
+                        jobs.append({
+                            "title": title.text.strip(),
+                            "location": location.text.strip() if location else "N/A",
+                            "link": "https://www.dockwalk.com" + link["href"]
+                        })
+
+        except Exception as e:
+            print(f"Error scraping {url}: {e}")
 
     os.makedirs("jobs", exist_ok=True)
     with open("jobs/jobs.json", "w") as f:
-        json.dump(all_jobs, f, indent=2)
-
-    print(f"✅ Saved {len(all_jobs)} jobs to jobs/jobs.json")
+        json.dump(jobs, f, indent=2)
 
 if __name__ == "__main__":
-    main()
+    scrape_jobs()
