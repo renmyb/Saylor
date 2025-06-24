@@ -3,38 +3,35 @@ import requests
 from bs4 import BeautifulSoup
 from datetime import datetime
 
-def scrape_jobs():
+def scrape_test_jobs():
     jobs = []
 
-    # Example source: yaCrew.com (hypothetical, scrape properly from public sources)
-    urls = [
-        "https://someyachtjobboard.com/jobs",
-        "https://anothercrewsite.org/latest-jobs"
-    ]
+    # Sample public source - replace with real later
+    url = "https://remoteok.com/remote-dev-jobs"  # TEMP public source for example only
 
-    for url in urls:
-        try:
-            response = requests.get(url, timeout=10)
-            soup = BeautifulSoup(response.text, "html.parser")
-            job_cards = soup.select(".job-card")  # Adjust this selector for real sites
+    try:
+        r = requests.get(url, headers={"User-Agent": "Mozilla/5.0"})
+        soup = BeautifulSoup(r.content, "html.parser")
+        listings = soup.select("tr.job")[:10]
 
-            for card in job_cards:
-                title = card.select_one(".job-title").get_text(strip=True)
-                location = card.select_one(".location").get_text(strip=True)
-                link = card.select_one("a")["href"]
+        for row in listings:
+            title = row.get("data-position")
+            company = row.get("data-company")
+            link = "https://remoteok.com" + row.get("data-href")
 
+            if title and company:
                 jobs.append({
-                    "title": title,
-                    "location": location,
+                    "title": f"{title} – {company}",
+                    "location": "Worldwide",
                     "link": link,
                     "timestamp": datetime.utcnow().isoformat()
                 })
 
-        except Exception as e:
-            print(f"Failed to scrape {url}: {e}")
+    except Exception as e:
+        print("Error scraping:", e)
 
     with open("jobs/jobs.json", "w") as f:
-        json.dump(jobs[:100], f, indent=2)  # save top 100 only
+        json.dump(jobs, f, indent=2)
 
 if __name__ == "__main__":
-    scrape_jobs()
+    scrape_test_jobs()
