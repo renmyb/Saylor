@@ -1,13 +1,14 @@
 name: Auto-update Jobs
 
 on:
-  schedule:
-    - cron: '0 * * * *'  # Every hour
   workflow_dispatch:
+  schedule:
+    - cron: "0 * * * *"  # every hour
 
 jobs:
   update-jobs:
     runs-on: ubuntu-latest
+
     steps:
       - name: Checkout repo
         uses: actions/checkout@v3
@@ -19,7 +20,7 @@ jobs:
 
       - name: Install dependencies
         run: |
-          pip install requests beautifulsoup4
+          pip install feedparser
 
       - name: Run scraper
         run: python scraper/scrape_jobs.py
@@ -28,8 +29,8 @@ jobs:
         run: |
           git config user.name "github-actions"
           git config user.email "github-actions@github.com"
-          git add jobs/jobs.json
-          git diff --cached --quiet || git commit -m "Auto update jobs"
+          git add jobs/jobs.json || echo "Nothing to add"
+          git diff --cached --quiet || git commit -m "Auto-update jobs feed"
           git push
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
