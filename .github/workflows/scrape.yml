@@ -1,8 +1,8 @@
-name: Auto-update Jobs
+name: Auto Scrape Yacht Jobs
 
 on:
   schedule:
-    - cron: '0 * * * *'  # Every hour
+    - cron: '*/15 * * * *'
   workflow_dispatch:
 
 jobs:
@@ -18,18 +18,18 @@ jobs:
         with:
           python-version: '3.x'
 
-      - name: Install feedparser
-        run: pip install feedparser
+      - name: Install dependencies
+        run: pip install beautifulsoup4 requests
 
       - name: Run scraper
         run: python scraper/scrape_jobs.py
 
-      - name: Commit and push
+      - name: Commit results
         run: |
           git config user.name "github-actions"
           git config user.email "github-actions@github.com"
-          git add jobs/jobs.json || echo "Nothing to add"
-          git diff --cached --quiet || git commit -m "Update job feed"
+          git add jobs/jobs.json
+          git diff --cached --quiet || git commit -m "⛵ Updated yacht job listings"
           git push
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
