@@ -2,15 +2,6 @@
   {
     "title": "Deckhand – 50m Private Yacht",
     "location": "Antibes, France",
-    "link": "https://example.com/job/deckhand-50m"
-  },
-  {
-    "title": "Chef – 35m Charter Yacht",
-    "location": "Fort Lauderdale, USA",
-    "link": "https://example.com/job/chef-35m"
-  },
-  {
-    "title": "Engineer – 70m Private Vessel",
-    "location": "Barcelona, Spain",
-    "link": "https://example.com/job/engineer-70m"
-    ]
+    "link": "https://example.com/job/deckhand"
+  }
+]
